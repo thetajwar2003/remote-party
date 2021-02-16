@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import main
+from .views import RoomView
 
 urlpatterns = [
-    path('', main) #if we get an empty endpoint, return main function
+    path('room', RoomView.as_view()) #if we get an empty endpoint, return main function,
 ]
