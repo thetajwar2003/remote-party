@@ -18,5 +18,6 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')) #send whatever urls to api.urls
+    path('api/', include('api.urls')), #send whatever urls to api.urls
+    path('', include('frontend.urls')) # send to frontend urls and handle views there
 ]
