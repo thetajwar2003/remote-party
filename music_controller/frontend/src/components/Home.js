@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-ro
 
 import JoinRoom from './JoinRoom';
 import CreateRoom from './CreateRoom';
+import Room from './Room';
 
 export default class Home extends Component {
     constructor(props) {
@@ -17,6 +18,7 @@ export default class Home extends Component {
                     </Route>
                     <Route exact path="/join" component={JoinRoom}/>
                     <Route exact path="/create" component={CreateRoom}/>
+                    <Route path="/room/:roomCode" component={Room}/>
                 </Switch>
             </Router>
         )
