@@ -6,7 +6,38 @@ export default class CreateRoom extends Component {
     defaultVotes = 2;
     constructor(props) {
         super(props);
+        this.state = {
+            guest_can_pause: true,
+            votes_to_skip: this.defaultVotes,
+        };
+        this.handleRoomButton = this.handleRoomButton.bind(this);
+        this.handleGuestCanPauseChange = this.handleGuestCanPauseChange.bind(this);
+        this.handleVotesChange = this.handleVotesChange.bind(this);
     }
+
+    handleVotesChange(e) {
+        this.setState({
+            votes_to_skip: e.target.value
+        });
+    }
+
+    handleGuestCanPauseChange(e) {
+        this.setState({
+            guest_can_pause: e.target.value === 'true' ? true : false
+        });
+    }
+
+    handleRoomButton() {
+        const requestOptions = {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(this.state)
+        }
+        fetch('/api/create-room', requestOptions)
+            .then((res) => res.json())
+            .then((data) => console.log(data));
+    }
+
     render() {
         return (
             <Grid container spacing={1}>
@@ -22,7 +53,7 @@ export default class CreateRoom extends Component {
                                  Guest Control of Playback State
                              </div>
                          </FormHelperText>
-                         <RadioGroup row defaultValue='true'>
+                         <RadioGroup row defaultValue='true' onChange={this.handleGuestCanPauseChange}>
                              <FormControlLabel 
                                 value="true" 
                                 control={
@@ -55,6 +86,7 @@ export default class CreateRoom extends Component {
                                     textAlign: "center"
                                 }
                             }}
+                            onChange={this.handleVotesChange}
                         />
                         <FormHelperText>
                             <div align="center">
@@ -64,7 +96,7 @@ export default class CreateRoom extends Component {
                     </FormControl>
                 </Grid>
                 <Grid item xs={12} align="center">
-                    <Button color="primary" variant="contained">
+                    <Button color="primary" variant="contained" onClick={this.handleRoomButton}>
                         Create A Room
                     </Button>
                 </Grid>
