@@ -19,5 +19,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')), #send whatever urls to api.urls
-    path('', include('frontend.urls')) # send to frontend urls and handle views there
+    path('', include('frontend.urls')), # send to frontend urls and handle views there
+    path('spotify/', include('spotify.urls')), # send to spotify urls and handle views there
 ]
