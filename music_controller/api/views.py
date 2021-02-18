@@ -106,7 +106,7 @@ class UpdateRoom(APIView):
             code = serializer.data.get('code')
 
             queryset = Room.objects.filter(code=code)
-            if not queryset.exits():
+            if not queryset.exists():
                 return Response({'Message': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
 
             room = queryset[0]
