@@ -75,3 +75,5 @@ export default class Home extends Component {
         )
     }
 }
+//python ./manage.py runserver
+//npm run dev
