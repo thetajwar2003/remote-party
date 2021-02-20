@@ -42,20 +42,19 @@ class CurrentSong(APIView):
         host = room.host
         endpoint = 'player/currently-playing'
         response = exectute_spotify_api_req(host, endpoint)
-        print(response)
 
         if 'error' in response or 'item' not in response:
             return Response(response, status=status.HTTP_204_NO_CONTENT)
 
         item = response.get('item')
-        duration = item.get('duration')
+        duration = item.get('duration_ms')
         progress = response.get('progress_ms')
-        album_cover = response.get('album').get('images')[0].get('url')
+        album_cover = item.get('album').get('images')[0].get('url')
         is_playing = response.get('is_playing')
         song_id = item.get('id')
         artist_string = ""
 
-        for i, artist in enumerate(item.get('artist')):
+        for i, artist in enumerate(item.get('artists')):
             if i > 0:
                 artist_string == ', '
             name = artist.get('name')
@@ -100,3 +99,36 @@ def spotify_callback(request, format=None):
         request.session.session_key, access_token, token_type, expires_in, refresh_token)
 
     return redirect('frontend:')
+
+
+class PauseSong(APIView):
+    def put(self, request, format=None):
+        room_code = self.request.get('room_code')
+        room = Room.objects.filter(code=room_code)[0]
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            pause_song(room.host)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+
+class PlaySong(APIView):
+    def put(self, request, format=None):
+        room_code = self.request.get('room_code')
+        room = Room.objects.filter(code=room_code)[0]
+        if self.request.session.session_key == room.host or room.guest_can_pause:
+            play_song(room.host)
+            return Response({}, status=status.HTTP_204_NO_CONTENT)
+        return Response({}, status=status.HTTP_403_FORBIDDEN)
+
+
+class SkipSong(APIView):
+    def post(self, request, format=None):
+        room_code = self.request.session.get('room_code')
+        room = Room.objects.filter(code=room_code)[0]
+
+        if self.request.session.session_key == room.host:
+            skip_song(room.host)
+        else:
+            pass
+
+        return Response({}, status=status.HTTP_204_NO_CONTENT)

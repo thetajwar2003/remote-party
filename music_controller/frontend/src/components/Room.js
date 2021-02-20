@@ -1,19 +1,21 @@
 import React, { Component } from 'react';
 import { Grid, Typography, Button, } from '@material-ui/core';
 
-import CreateRoom from './CreateRoom'
+import CreateRoom from './CreateRoom';
+import MusicPlayer from './MusicPlayer';
 
 export default class Room extends Component {
     constructor(props) {
-        super(props)
+        super(props);
 
         this.state = {
             votes_to_skip: 2,
             guest_can_pause: false,
             is_host: false,
             showSettings: false,
-            spotifyAthenticated: false
-        }
+            spotifyAthenticated: false,
+            song: {}
+        };
         this.roomCode = this.props.match.params.roomCode;
         this.handleLeave = this.handleLeave.bind(this);
         this.updateShowSettings = this.updateShowSettings.bind(this);
@@ -21,7 +23,29 @@ export default class Room extends Component {
         this.settingsButton = this.settingsButton.bind(this);
         this.getRoomDetails = this.getRoomDetails.bind(this);
         this.authenticateSpotify = this.authenticateSpotify.bind(this);
+        this.getCurrentSong = this.getCurrentSong.bind(this);
         this.getRoomDetails();
+    }
+
+    componentDidMount() {
+        // call the getCurrentSong function every second once the component mounts to update the sing playing
+        this.interval = setInterval(this.getCurrentSong, 1000);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
+    }
+
+    getCurrentSong() {
+        fetch('/spotify/current-song')
+            .then((res) => {
+                if (!res.ok) return {};
+                else return res.json();
+            })
+            .then((data) => {
+                this.setState({ song: data });
+                console.log(data);
+            });
     }
 
     authenticateSpotify() {
@@ -31,14 +55,14 @@ export default class Room extends Component {
                 this.setState({
                     spotifyAuthenticated: data.status
                 });
-                if(!data.status){
+                if (!data.status) {
                     fetch('/spotify/get-auth-url')
                         .then((res) => res.json())
                         .then((data) => {
                             window.location.replace(data.url);
-                        })
+                        });
                 }
-            })
+            });
     }
 
     getRoomDetails() {
@@ -48,7 +72,7 @@ export default class Room extends Component {
                     this.props.leaveRoomCallback();
                     this.props.history.push('/');
                 }
-                return res.json()
+                return res.json();
             })
             .then((data) => {
                 this.setState({
@@ -56,7 +80,7 @@ export default class Room extends Component {
                     guest_can_pause: data.guest_can_pause,
                     is_host: data.is_host
                 });
-                if(this.state.is_host) this.authenticateSpotify()
+                if (this.state.is_host) this.authenticateSpotify();
             });
     }
 
@@ -64,12 +88,12 @@ export default class Room extends Component {
         const request_options = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-        }
+        };
         fetch('/api/leave-room', request_options)
             .then((res) => {
                 this.props.leaveRoomCallback();
                 this.props.history.push('/');
-            })
+            });
     }
 
     updateShowSettings(value) {
@@ -85,17 +109,17 @@ export default class Room extends Component {
                     Settings
                 </Button>
             </Grid>
-        )
+        );
     }
 
     settings() {
-        return(
+        return (
             <Grid container spacing={1}>
                 <Grid item xs={12} aling="center">
-                    <CreateRoom 
-                        update={true} 
-                        votes_to_skip={this.state.votes_to_skip} 
-                        guest_can_pause={this.state.guest_can_pause} 
+                    <CreateRoom
+                        update={true}
+                        votes_to_skip={this.state.votes_to_skip}
+                        guest_can_pause={this.state.guest_can_pause}
                         roomCode={this.roomCode}
                         updateCallback={this.getRoomDetails}
                     />
@@ -106,11 +130,11 @@ export default class Room extends Component {
                     </Button>
                 </Grid>
             </Grid>
-        )
+        );
     }
 
     render() {
-        if(this.state.showSettings){
+        if (this.state.showSettings) {
             return this.settings();
         }
         return (
@@ -120,21 +144,7 @@ export default class Room extends Component {
                         Code: {this.roomCode}
                     </Typography>
                 </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Votes: {this.state.votes_to_skip.toString()}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Guest Can Pause: {this.state.guest_can_pause.toString()}
-                    </Typography>
-                </Grid>
-                <Grid item xs={12} align="center">
-                    <Typography variant="h6" component="h6">
-                        Host: {this.state.is_host.toString()}
-                    </Typography>
-                </Grid>
+                <MusicPlayer {...this.state.song} />
                 {this.state.is_host ? this.settingsButton() : null}
                 <Grid item xs={12} align="center">
                     <Button variant="contained" color="secondary" onClick={this.handleLeave}>
@@ -142,6 +152,6 @@ export default class Room extends Component {
                     </Button>
                 </Grid>
             </Grid>
-        )
+        );
     }
 }
