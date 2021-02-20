@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api.apps.ApiConfig', #reference the api app
-    'rest_framework', 
+    'api.apps.ApiConfig',  # reference the api app
+    'rest_framework',
     'frontend.apps.FrontendConfig',
     'spotify.apps.SpotifyConfig'
 ]
