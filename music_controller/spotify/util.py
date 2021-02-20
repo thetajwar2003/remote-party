@@ -46,7 +46,6 @@ def refresh_spotify_token(session_key):
     access_token = response.get('access_token')
     token_type = response.get('token_type')
     expires_in = response.get('expires_in')
-    refresh_token = response.get('refresh_token')
 
     update_or_create_user_tokens(
         session_key, access_token, token_type, expires_in, refresh_token)
@@ -80,3 +79,15 @@ def exectute_spotify_api_req(session_key, endpoint, post_=False, put_=False):
         return response.json()
     except:
         return {'Error': 'Issue with request'}
+
+
+def play_song(session_key):
+    return exectute_spotify_api_req(session_key, "player/play", put_=True)
+
+
+def pause_song(session_key):
+    return exectute_spotify_api_req(session_key, "player/pause", put_=True)
+
+
+def skip_song(session_key):
+    return exectute_spotify_api_req(session_key, "player/next", post_=True)
